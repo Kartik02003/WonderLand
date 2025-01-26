@@ -1,4 +1,3 @@
-// Sample Data
 const sampleListings = [
     {
         title: "Cozy Beachfront Cottage",
