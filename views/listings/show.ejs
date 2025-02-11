@@ -5,7 +5,9 @@
             <h3>Listing Details</h3>
         </div>
         <div class="card col-6 offset-3 show-card">
-            <img src="<%= listing.image.url %>" class="card-img-top show-img" alt="listing_image">
+            <div class="listing-image">
+                <img src="<%= listing.image.url %>" alt="<%= listing.title %>">
+            </div>
             <div class="card-body">
                 <p class="card-text">
                     <b>
