@@ -77,25 +77,22 @@ app.get("/listings/:id", wrapAsync(async (req, res) => {
     res.render("listings/show.ejs", { listing });
 }));
 
-//Create Route for Reviews
-app.post("/listings", validateReview, wrapAsync(async (req, res, next) => {
-    // if (!req.body.listing) {
-    //     throw new ExpressError(400, "Invalid Listing Data! Send Valid Data for Listing!");
-    // }
+// Create Route for Listings
+app.post("/listings", validateListing, wrapAsync(async (req, res, next) => {
+    if (!req.body.listing.image) {
+        req.body.listing.image = undefined; // Remove image if not provided
+    } else if (typeof req.body.listing.image === "string") {
+        // Convert string URL to object
+        req.body.listing.image = { url: req.body.listing.image, filename: "default_filename" };
+    }
+
     const newListing = new Listing(req.body.listing);
-    // ye multiple if else se acha hai hum JOI use krte hain
-    // if (!newListing.title) {
-    //     throw new ExpressError(400, "Title is Required!");
-    // }
-    // if (!newListing.description) {
-    //     throw new ExpressError(400, "Description is Required!");
-    // }
-    // if (!newListing.location) {
-    //     throw new ExpressError(400, "Location is Required!");
-    // }
     await newListing.save();
     res.redirect(`/listings/${newListing._id}`);
 }));
+
+
+
 
 //Edit Route
 app.get("/listings/:id/edit", wrapAsync(async (req, res) => {
@@ -108,17 +105,26 @@ app.get("/listings/:id/edit", wrapAsync(async (req, res) => {
 app.put("/listings/:id", validateListing, wrapAsync(async (req, res) => {
     let { id } = req.params;
     const listing = await Listing.findById(id);
+
+    // Update listing fields
     listing.title = req.body.listing.title;
     listing.description = req.body.listing.description;
     listing.price = req.body.listing.price;
     listing.location = req.body.listing.location;
     listing.country = req.body.listing.country;
-    if (req.body.listing.image && req.body.listing.image.url) {
-        listing.image = { url: req.body.listing.image.url, filename: listing.image.filename };
+
+    if (req.body.listing.image) {
+        if (typeof req.body.listing.image === "string") {
+            listing.image = { url: req.body.listing.image, filename: listing.image.filename || "default_filename" };
+        } else if (req.body.listing.image.url) {
+            listing.image = { url: req.body.listing.image.url, filename: listing.image.filename || "default_filename" };
+        }
     }
+
     await listing.save();
     res.redirect(`/listings/${id}`);
 }));
+
 
 //Delete Route
 app.delete("/listings/:id", wrapAsync(async (req, res) => {
