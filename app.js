@@ -130,7 +130,7 @@ app.put("/listings/:id", validateListing, wrapAsync(async (req, res) => {
 app.delete("/listings/:id", wrapAsync(async (req, res) => {
     let { id } = req.params;
     let deletedListing = await Listing.findByIdAndDelete(id);
-    console.log(deletedListing);
+    // console.log(deletedListing);
     res.redirect("/listings");
 }));
 
