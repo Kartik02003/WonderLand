@@ -48,6 +48,14 @@ body {
     justify-content: center;
 }
 
+.f-info-contact {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: small;
+}
+
 
 .f-info-socials i {
     font-size: 1.3rem;
