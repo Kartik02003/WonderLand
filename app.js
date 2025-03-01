@@ -7,9 +7,13 @@ const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressErrors.js");
 const session = require("express-session");
 const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./models/user.js");
 
-const listings = require("./routes/listing.js");
-const reviews = require("./routes/reviews.js");
+const listingRouter = require("./routes/listing.js");
+const reviewRouter = require("./routes/reviews.js");
+const userRouter = require("./routes/user.js");
 
 const MONGO_URL = "mongodb://127.0.0.1:27017/WonderLand";
 
@@ -52,15 +56,33 @@ app.get("/", (req, res) => {
 app.use(session(sessionOptions));
 app.use(flash());
 
+// Passport Configuration
+app.use(passport.initialize()); // This is required to initialize passport
+app.use(passport.session()); // This is required to use persistent login sessions
+passport.use(new LocalStrategy(User.authenticate())); // This is required to use the local strategy
+passport.serializeUser(User.serializeUser()); // This is required to serialize the user
+passport.deserializeUser(User.deserializeUser()); // This is required to deserialize the user
+
+
 app.use((req, res, next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
     next();
 });
 
+
+// app.get("/demouser", async (req, res) => {
+//     let fakeUser = new User({ email: "student@gmail.com", username: "student" });
+//     let registeredUser = await User.register(fakeUser, "student"); // This will hash the password and store it in the DB along with the username and email address of the user
+//     // student is the password here
+//     res.send(registeredUser);
+// });
+
+
 // Using the listings route file for all the routes
-app.use("/listings", listings);
-app.use("/listings/:id/reviews", reviews);
+app.use("/listings", listingRouter);
+app.use("/listings/:id/reviews", reviewRouter);
+app.use("/", userRouter);
 
 
 // testing error handling
