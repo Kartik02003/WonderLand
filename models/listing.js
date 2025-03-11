@@ -22,6 +22,10 @@ const listingSchema = new Schema({
             default: []
         }
     ],
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: "User"
+    }
 });
 
 // Delete reviews associated with a listing when that listing is deleted from the database
