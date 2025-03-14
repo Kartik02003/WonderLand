@@ -6,27 +6,14 @@ const Listing = require("../models/listing.js");
 const Review = require("../models/review.js");
 const { validateReview, isLoggedIn, isReviewAuthor } = require("../middleware.js");
 
+
+const reviewsController = require("../controller/reviews.js");
+
 // '/listings/:id/reviews' ye yha common hai toh usko hataya hua hai
 // Reviews Post Route
-router.post("/", isLoggedIn, validateReview, wrapAsync(async (req, res) => {
-    let listing = await Listing.findById(req.params.id);
-    let newReview = new Review(req.body.review);
-    newReview.author = req.user._id;
-    listing.reviews.push(newReview);
-    await newReview.save();
-    await listing.save();
-    req.flash("success", "Successfully made a new review!");
-    res.redirect(`/listings/${listing._id}`);
-}));
+router.post("/", isLoggedIn, validateReview, wrapAsync(reviewsController.createReview)); // createReview function controller me hai
 
 // Delete Route for Reviews
-router.delete("/:reviewId", isLoggedIn, isReviewAuthor, wrapAsync(async (req, res) => {
-    let { id, reviewId } = req.params;
-    await Listing.findByIdAndUpdate(id, { $pull: { reviews: reviewId } }); // $pull is used to remove the element from the array
-    await Review.findByIdAndDelete(reviewId); // delete the review
-    req.flash("success", "Successfully deleted a review!");
-    res.redirect(`/listings/${id}`);
-}
-));
+router.delete("/:reviewId", isLoggedIn, isReviewAuthor, wrapAsync(reviewsController.destroyReview)); // destroyReview function controller me hai
 
 module.exports = router;
